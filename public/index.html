@@ -15,15 +15,15 @@ body{font-family:'Kanit',system-ui,sans-serif;color:var(--ink);background:#fff;t
 .hdr-ph{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#8c8aa8;border:2px dashed #cfcde8;margin-top:12px}
 .row2{display:flex;justify-content:center;margin:6px 0 30px}
 .feat{width:min(360px,78%)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.card{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:8px 8px 10px;box-shadow:4px 4px 0 var(--blue)}
-.pic{position:relative;aspect-ratio:2/3;cursor:pointer}
-.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .35s}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.card{background:none;border:0;padding:0}
+.pic{display:grid;cursor:pointer}
+.pic img{grid-area:1/1;display:block;width:100%;height:auto;transition:opacity .35s}
 .pic .b{opacity:0}
 .pic:hover .b,.pic:focus .b{opacity:1}
 .pic.hasb:hover .a,.pic.hasb:focus .a{opacity:0}
-.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.8rem;color:#8c8aa8;border:2px dashed #cfcde8;border-radius:8px;background:repeating-linear-gradient(45deg,#fff,#fff 8px,#f6f5fc 8px,#f6f5fc 16px)}
-.tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;font-family:'Cinzel','Kanit',serif;font-weight:700;font-size:clamp(.6rem,2.4vw,.9rem);letter-spacing:.5px}
+.ph{grid-area:1/1;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.8rem;color:#8c8aa8;border:2px dashed #cfcde8;border-radius:8px;background:repeating-linear-gradient(45deg,#fff,#fff 8px,#f6f5fc 8px,#f6f5fc 16px)}
+.tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;font-family:'Cinzel','Kanit',serif;font-weight:700;font-size:clamp(.6rem,2.4vw,.9rem);letter-spacing:.5px}
 .feat .tag{font-size:1.05rem}
 .h{outline:none;word-break:break-all;min-width:2ch}
 .cp{border:0;background:none;cursor:pointer;padding:2px;display:inline-flex;color:var(--blue)}
