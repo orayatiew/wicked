@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WICKED</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕷️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111;--blue:#2a2a9e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Kanit',system-ui,sans-serif;color:var(--ink);background:#fff;text-align:center;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:0 12px 50px}
+.hdr{display:block;width:100%;height:auto}
+.hdr-ph{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#8c8aa8;border:2px dashed #cfcde8;margin-top:12px}
+.row2{display:flex;justify-content:center;margin:6px 0 30px}
+.feat{width:min(360px,78%)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:8px 8px 10px;box-shadow:4px 4px 0 var(--blue)}
+.pic{position:relative;aspect-ratio:2/3;cursor:pointer}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .35s}
+.pic .b{opacity:0}
+.pic:hover .b,.pic:focus .b{opacity:1}
+.pic.hasb:hover .a,.pic.hasb:focus .a{opacity:0}
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.8rem;color:#8c8aa8;border:2px dashed #cfcde8;border-radius:8px;background:repeating-linear-gradient(45deg,#fff,#fff 8px,#f6f5fc 8px,#f6f5fc 16px)}
+.tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;font-family:'Cinzel','Kanit',serif;font-weight:700;font-size:clamp(.6rem,2.4vw,.9rem);letter-spacing:.5px}
+.feat .tag{font-size:1.05rem}
+.h{outline:none;word-break:break-all;min-width:2ch}
+.cp{border:0;background:none;cursor:pointer;padding:2px;display:inline-flex;color:var(--blue)}
+.cp svg{width:1.15em;height:1.15em}
+.cp.ok{color:#1a9a4a}
+.hint{font-size:.8rem;color:#8c8aa8;margin-top:16px}
+/* ---- โหมดแก้ไข (เปิดด้วย #edit) ---- */
+body.edit{padding-bottom:70px}
+body.edit .h{background:#f1f0ff;border-bottom:1px dashed var(--blue);padding:0 4px;border-radius:4px}
+.ctl{display:none;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+body.edit .ctl{display:flex}
+.ctl button,.bar button{font:inherit;font-size:.72rem;padding:3px 8px;border:2px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
+.ctl .x{background:#ffe3e3}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--ink);color:#fff;padding:10px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:.8rem}
+.bar .save{background:#ffd43b;font-weight:600;font-size:.85rem;padding:6px 14px}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app"></div></div>
+<noscript><p style="padding:20px;text-align:center">กรุณาเปิด JavaScript เพื่อดูหน้านี้</p></noscript>
+
+<!-- ข้อมูลทั้งหมดของหน้า (รูป ข้อความ การ์ด) เก็บไว้ตรงนี้ โหมดแก้ไขจะเขียนทับให้เมื่อกดบันทึก -->
+<script type="application/json" id="data">{"header":"header.png","feat":{"a":"featured.png","b":"","t":"@THEORYOFLUV"},"cards":[{"a":"","b":"","t":"@username"},{"a":"","b":"","t":"@username"},{"a":"","b":"","t":"@username"},{"a":"","b":"","t":"@username"},{"a":"","b":"","t":"@username"},{"a":"","b":"","t":"@username"}]}</script>
+
+<script>
+(function () {
+  var edit = location.hash === '#edit';
+  window.addEventListener('hashchange', function () { location.reload(); });
+  var DKEY = 'wicked-draft';
+  var data = JSON.parse(document.getElementById('data').textContent);
+  if (edit) {
+    try { var d = JSON.parse(localStorage.getItem(DKEY)); if (d && d.cards) data = d; } catch (e) {}
+    document.body.classList.add('edit');
+  }
+  var app = document.getElementById('app');
+  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function btn(txt, fn, cls) { var x = el('button', cls || '', txt); x.type = 'button'; x.onclick = fn; return x; }
+  function save() {
+    try { localStorage.setItem(DKEY, JSON.stringify(data)); }
+    catch (e) { alert('พื้นที่จำชั่วคราวเต็ม กรุณากดบันทึกเป็น index.html ทันที'); }
+  }
+
+  // ปุ่มคัดลอกข้อความ
+  function copy(txt, b) {
+    function ok() { b.innerHTML = CHECK; b.classList.add('ok'); setTimeout(function () { b.innerHTML = ICON; b.classList.remove('ok'); }, 1200); }
+    function fallback() {
+      var t = document.createElement('textarea'); t.value = txt; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); ok(); } catch (e) { prompt('คัดลอกข้อความนี้:', txt); }
+      document.body.removeChild(t);
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok, fallback); else fallback();
+  }
+
+  // อัปโหลดรูป (ย่อเป็น WebP ฝังในไฟล์)
+  var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.hidden = true;
+  if (edit) document.body.appendChild(inp);
+  function shrink(file, max) {
+    return createImageBitmap(file).then(function (bm) {
+      var k = Math.min(1, max / Math.max(bm.width, bm.height));
+      var c = document.createElement('canvas'); c.width = Math.round(bm.width * k); c.height = Math.round(bm.height * k);
+      c.getContext('2d').drawImage(bm, 0, 0, c.width, c.height);
+      return c.toDataURL('image/webp', 0.92);
+    });
+  }
+  function pick(max, done) {
+    inp.value = '';
+    inp.onchange = function () {
+      var f = inp.files[0]; if (!f) return;
+      shrink(f, max).then(function (u) { done(u); save(); render(); })
+        .catch(function () { alert('อ่านรูปนี้ไม่ได้ ลองไฟล์ JPG หรือ PNG'); });
+    };
+    inp.click();
+  }
+  function move(i, dir) {
+    var j = i + dir; if (j < 0 || j >= data.cards.length) return;
+    var t = data.cards[i]; data.cards[i] = data.cards[j]; data.cards[j] = t; save(); render();
+  }
+
+  // สร้าง 1 การ์ด (feat = การ์ดรูปเดียวตรงกลาง)
+  function card(o, feat, i) {
+    var d = el('div', 'card' + (feat ? ' feat' : ''));
+    var p = el('div', 'pic' + (o.b && !feat ? ' hasb' : '')); p.tabIndex = 0;
+    if (!o.a) p.appendChild(el('span', 'ph', feat ? 'ใส่รูปหลัก' : 'ใส่รูปการ์ด'));
+    else { var a = el('img', 'a'); a.src = o.a; a.alt = o.t || ''; p.appendChild(a); }
+    if (o.a && o.b && !feat) { var b2 = el('img', 'b'); b2.src = o.b; b2.alt = o.t || ''; p.appendChild(b2); }
+    d.appendChild(p);
+
+    var t = el('div', 'tag'), h = el('span', 'h'), cp = el('button', 'cp', ICON);
+    h.textContent = o.t || ''; cp.type = 'button'; cp.title = 'คัดลอกข้อความ';
+    cp.onclick = function () { copy(h.textContent.trim(), cp); };
+    t.appendChild(h); t.appendChild(cp); d.appendChild(t);
+
+    if (edit) {
+      h.contentEditable = 'true'; h.spellcheck = false;
+      h.oninput = function () { o.t = h.textContent; save(); };
+      h.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); h.blur(); } };
+      h.onpaste = function (e) {
+        e.preventDefault();
+        document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text').replace(/\s+/g, ' '));
+      };
+      var c = el('div', 'ctl');
+      c.appendChild(btn('📷 รูป', function () { pick(feat ? 900 : 640, function (u) { o.a = u; }); }));
+      if (!feat) c.appendChild(btn('📷 hover', function () { pick(640, function (u) { o.b = u; }); }));
+      c.appendChild(btn('✕ รูป', function () { o.a = ''; o.b = ''; save(); render(); }, 'x'));
+      if (!feat) {
+        c.appendChild(btn('◀', function () { move(i, -1); }));
+        c.appendChild(btn('▶', function () { move(i, 1); }));
+        c.appendChild(btn('🗑', function () { if (confirm('ลบการ์ดนี้?')) { data.cards.splice(i, 1); save(); render(); } }, 'x'));
+      }
+      d.appendChild(c);
+    }
+    return d;
+  }
+
+  function render() {
+    app.innerHTML = '';
+    if (data.header) { var im = el('img', 'hdr'); im.src = data.header; im.alt = 'WICKED'; app.appendChild(im); }
+    else app.appendChild(el('div', 'hdr-ph', 'ใส่รูป Header'));
+    if (edit) {
+      var hc = el('div', 'ctl'); hc.appendChild(btn('📷 เปลี่ยน Header', function () { pick(1600, function (u) { data.header = u; }); }));
+      app.appendChild(hc);
+    }
+    var r2 = el('div', 'row2'); r2.appendChild(card(data.feat, true)); app.appendChild(r2);
+    var g = el('div', 'grid');
+    data.cards.forEach(function (c, i) { g.appendChild(card(c, false, i)); });
+    app.appendChild(g);
+    if (data.cards.some(function (c) { return c.b; })) app.appendChild(el('p', 'hint', 'เอาเมาส์ชี้ (หรือแตะบนมือถือ) เพื่อดูรูปอีกแบบ'));
+  }
+
+  // แถบเครื่องมือโหมดแก้ไข
+  function saveFile() {
+    var c = document.documentElement.cloneNode(true);
+    c.querySelector('#data').textContent = JSON.stringify(data).replace(/</g, '\\u003c');
+    c.querySelector('#app').innerHTML = '';
+    ['#bar', 'input[type=file]'].forEach(function (s) { var n = c.querySelector(s); if (n) n.remove(); });
+    c.querySelector('body').classList.remove('edit');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['<!DOCTYPE html>\n' + c.outerHTML], {type: 'text/html'}));
+    a.download = 'index.html'; a.click();
+  }
+  if (edit) {
+    var bar = el('div', 'bar', '<span>✏️ โหมดแก้ไข: พิมพ์แก้ข้อความ @ ได้เลย</span>'); bar.id = 'bar';
+    bar.appendChild(btn('＋ เพิ่มการ์ด', function () {
+      data.cards.push({a: '', b: '', t: '@username'}); save(); render(); window.scrollTo(0, document.body.scrollHeight);
+    }));
+    bar.appendChild(btn('💾 บันทึกเป็น index.html', saveFile, 'save'));
+    bar.appendChild(btn('↺ ล้างฉบับร่าง', function () {
+      if (confirm('ล้างสิ่งที่แก้ไว้แต่ยังไม่ได้บันทึก?')) { localStorage.removeItem(DKEY); location.reload(); }
+    }));
+    document.body.appendChild(bar);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
