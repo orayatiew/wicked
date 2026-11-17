@@ -8,12 +8,14 @@
 <style>
 :root{--ink:#111;--blue:#2a2a9e}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Kanit',system-ui,sans-serif;color:var(--ink);background:#fff;text-align:center;line-height:1.5}
-.wrap{max-width:900px;margin:0 auto;padding:0 12px 50px}
+body{font-family:'Kanit',system-ui,sans-serif;color:var(--ink);background:#fff;text-align:center;line-height:1.5;overflow-x:hidden}
+.wrap{max-width:1140px;margin:0 auto;padding:0 12px 50px}
 .hdr{display:block;width:100%;height:auto}
 .hdr-ph{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#8c8aa8;border:2px dashed #cfcde8;margin-top:12px}
-.row2{display:flex;justify-content:center;margin:6px 0 30px}
-.feat{width:min(360px,78%)}
+.row2{position:relative;display:flex;justify-content:center;align-items:center;margin:6px 0 30px;padding:24px 0;
+  width:100vw;margin-left:calc(50% - 50vw);background-color:transparent;background-position:center;background-size:cover;background-repeat:no-repeat}
+/* การ์ดเดี่ยวกว้างเท่ากับ 1 ช่องของกริด 3 คอลัมน์ (gap 14px) */
+.feat{width:calc((min(100vw,1140px) - 24px - 28px)/3)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
 .card{background:none;border:0;padding:0}
 .pic{display:grid;cursor:pointer}
@@ -22,8 +24,7 @@ body{font-family:'Kanit',system-ui,sans-serif;color:var(--ink);background:#fff;t
 .pic:hover .b,.pic:focus .b{opacity:1}
 .pic.hasb:hover .a,.pic.hasb:focus .a{opacity:0}
 .ph{grid-area:1/1;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.8rem;color:#8c8aa8;border:2px dashed #cfcde8;border-radius:8px;background:repeating-linear-gradient(45deg,#fff,#fff 8px,#f6f5fc 8px,#f6f5fc 16px)}
-.tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;font-family:'Cinzel','Kanit',serif;font-weight:700;font-size:clamp(.6rem,2.4vw,.9rem);letter-spacing:.5px}
-.feat .tag{font-size:1.05rem}
+.tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;font-family:'Cinzel','Kanit',serif;font-weight:700;font-size:clamp(.6rem,2.4vw,1rem);letter-spacing:.5px}
 .h{outline:none;word-break:break-all;min-width:2ch}
 .cp{border:0;background:none;cursor:pointer;padding:2px;display:inline-flex;color:var(--blue)}
 .cp svg{width:1.15em;height:1.15em}
@@ -36,6 +37,10 @@ body.edit .h{background:#f1f0ff;border-bottom:1px dashed var(--blue);padding:0 4
 body.edit .ctl{display:flex}
 .ctl button,.bar button{font:inherit;font-size:.72rem;padding:3px 8px;border:2px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
 .ctl .x{background:#ffe3e3}
+.bgctl{display:none;position:absolute;top:8px;right:8px;z-index:2;gap:4px}
+body.edit .bgctl{display:flex}
+.bgctl button{font:inherit;font-size:.72rem;padding:3px 8px;border:2px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
+.bgctl .x{background:#ffe3e3}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--ink);color:#fff;padding:10px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:.8rem}
 .bar .save{background:#ffd43b;font-weight:600;font-size:.85rem;padding:6px 14px}
 </style>
@@ -149,7 +154,16 @@ body.edit .ctl{display:flex}
       var hc = el('div', 'ctl'); hc.appendChild(btn('📷 เปลี่ยน Header', function () { pick(1600, function (u) { data.header = u; }); }));
       app.appendChild(hc);
     }
-    var r2 = el('div', 'row2'); r2.appendChild(card(data.feat, true)); app.appendChild(r2);
+    var r2 = el('div', 'row2');
+    if (data.bg) r2.style.backgroundImage = 'url("' + data.bg + '")';
+    r2.appendChild(card(data.feat, true));
+    if (edit) {
+      var bc = el('div', 'bgctl');
+      bc.appendChild(btn('🖼 พื้นหลัง', function () { pick(2000, function (u) { data.bg = u; }); }));
+      if (data.bg) bc.appendChild(btn('✕ พื้นหลัง', function () { data.bg = ''; save(); render(); }, 'x'));
+      r2.appendChild(bc);
+    }
+    app.appendChild(r2);
     var g = el('div', 'grid');
     data.cards.forEach(function (c, i) { g.appendChild(card(c, false, i)); });
     app.appendChild(g);
