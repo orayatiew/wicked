@@ -12,12 +12,15 @@ body{font-family:'Kanit',system-ui,sans-serif;color:var(--ink);background:#fff;t
 .wrap{max-width:1140px;margin:0 auto;padding:0 12px 50px}
 .hdr{display:block;width:100%;height:auto}
 .hdr-ph{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#8c8aa8;border:2px dashed #cfcde8;margin-top:12px}
-.row2{position:relative;display:flex;justify-content:center;align-items:center;margin:6px 0 30px;padding:24px 0;
+.row2{position:relative;display:flex;justify-content:center;align-items:center;margin:6px 0 0;padding:24px 0 12px;
   width:100vw;margin-left:calc(50% - 50vw);background-color:transparent;background-position:center;background-size:cover;background-repeat:no-repeat}
 /* การ์ดเดี่ยวกว้างเท่ากับ 1 ช่องของกริด 3 คอลัมน์ (gap 14px) */
 .feat{width:calc((min(100vw,1140px) - 24px - 28px)/3)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
 .card{background:none;border:0;padding:0}
+/* คอลัมน์ 1 และ 3 ยกขึ้นไปอยู่ข้างรูป row 2 (ปรับ --lift ได้: ยิ่งมากยิ่งสูง) */
+.grid{--lift:46%}
+.grid>.card:nth-child(3n+1),.grid>.card:nth-child(3n){transform:translateY(calc(var(--lift) * -1))}
 .pic{display:grid;cursor:pointer}
 .pic img{grid-area:1/1;display:block;width:100%;height:auto;transition:opacity .35s}
 .pic .b{opacity:0}
